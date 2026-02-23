@@ -2,20 +2,6 @@
 </div>
 
 
- <footer class="footer">
-            <p class="fs-11 text-muted fw-medium text-uppercase mb-0 copyright">
-                <span>ElTo Soft ©</span>
-                <script>
-                    document.write(new Date().getFullYear());
-                </script>
-            </p>
-            <p><span>By: <a target="_blank" href="https://t.me/eliyorbek_tojimatov" target="_blank">Tojimatov Eliyorbek</a></span></p>
-            <div class="d-flex align-items-center gap-4">
-                <a href="https://t.me/eliyorbek_tojimatov" class="fs-11 fw-semibold text-uppercase">Telegram</a>
-                <a href="tel:+998939637074" class="fs-11 flex items-center fw-semibold text-uppercase"><i class="bi bi-telephone-plus"></i> +998(93) 963 70 74</a>
-            </div>
-        </footer>
-        <!-- [ Footer ] end -->
 </main>
  <div class="theme-customizer">
         <div class="customizer-handle">

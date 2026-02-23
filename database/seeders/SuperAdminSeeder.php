@@ -13,14 +13,17 @@ class SuperAdminSeeder extends Seeder
      */
     public function run(): void
     {
-        User::create([
-            'name' => 'eltotrade',
-            'email' => 'elto@eltotrade.com',
-            'password' => Hash::make('eltotrade'),
-            'phone' => '+998939637074',
-            'is_active' => true,
+        $user = User::create([
+            'name'              => 'eltotrade',
+            'email'             => 'elto@eltotrade.com',
+            'password'          => Hash::make('eltotrade'),
+            'phone'             => '+998939637074',
+            'is_active'         => true,
             'email_verified_at' => now(),
         ]);
+
+        // Role berish
+        $user->assignRole('admin');
 
         $this->command->info('Super Admin created successfully!');
         $this->command->info('Email: elto@eltotrade.com');

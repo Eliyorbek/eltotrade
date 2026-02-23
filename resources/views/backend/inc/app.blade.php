@@ -1,0 +1,5 @@
+@include('backend.inc.header')
+@include('backend.inc.navbar')
+@include('backend.inc.head')
+@yield('content')
+@include('backend.inc.footer')
