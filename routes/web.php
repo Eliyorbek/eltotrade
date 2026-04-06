@@ -26,3 +26,5 @@ Route::middleware('auth.user')->group(function () {
 
 
 });
+
+require "sales.php";

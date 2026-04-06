@@ -46,6 +46,13 @@
                         </a>
                     </li>
 
+                    <li class="nxl-hasmenu">
+                        <a href="{{route('sales.index')}}" class="nxl-link">
+                            <span class="nxl-micon"><i class="feather-package"></i></span>
+                            <span class="nxl-mtext">Sotish</span><span class="nxl-arrow"></span>
+                        </a>
+                    </li>
+
                 </ul>
 
             </div>
