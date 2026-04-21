@@ -28,3 +28,5 @@ Route::middleware('auth.user')->group(function () {
 });
 
 require "sales.php";
+require "reports.php";
+require "warehouse.php";

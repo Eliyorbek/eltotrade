@@ -62,7 +62,7 @@
                             </span>
                             </td>
                             @canany(['categories.edit', 'categories.delete'])
-                                <td class="text-end pe-3">
+                                <td class="text-end pe-3 d-flex justify-content-center align-items-center">
                                     @can('categories.edit')
                                         <a href="{{ route('categories.edit', $category) }}"
                                            class="btn btn-sm btn-outline-primary me-1">

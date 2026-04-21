@@ -82,7 +82,7 @@
                             </td>
 
                             @canany(['users.edit', 'users.delete'])
-                                <td class="text-end pe-3">
+                                <td class="text-end pe-3 d-flex align-items-center">
                                     @can('users.edit')
                                         <a href="{{ route('employees.edit', $employee) }}"
                                            class="btn btn-sm btn-outline-primary me-1">
