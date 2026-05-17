@@ -1,217 +1,304 @@
 @extends('backend.inc.app')
 @section('title', 'Yangi Sotuv (POS)')
-    <style>
+<style>
+    .pos-container {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 20px;
+        height: calc(100vh - 200px);
+    }
+
+    @media (max-width: 1200px) {
         .pos-container {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 20px;
-            height: calc(100vh - 200px);
+            grid-template-columns: 1fr;
+            height: auto;
         }
+    }
 
-        @media (max-width: 1200px) {
-            .pos-container {
-                grid-template-columns: 1fr;
-                height: auto;
-            }
-        }
+    .products-area {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 15px;
+        overflow-y: auto;
+    }
 
-        .products-area {
-            background: #f8f9fa;
-            border-radius: 8px;
-            padding: 15px;
-            overflow-y: auto;
-        }
+    .cart-area {
+        background: white;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+    }
 
-        .cart-area {
-            background: white;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-        }
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 10px;
+        margin-top: 10px;
+    }
 
-        .product-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 10px;
-            margin-top: 10px;
-        }
+    .product-card {
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        padding: 10px;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-align: center;
+    }
 
-        .product-card {
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            padding: 10px;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-align: center;
-        }
+    .product-card:hover {
+        border-color: #007bff;
+        box-shadow: 0 2px 8px rgba(0,123,255,0.2);
+        transform: translateY(-2px);
+    }
 
-        .product-card:hover {
-            border-color: #007bff;
-            box-shadow: 0 2px 8px rgba(0,123,255,0.2);
-            transform: translateY(-2px);
-        }
+    .product-card.active {
+        background: #007bff;
+        color: white;
+        border-color: #007bff;
+    }
 
-        .product-card.active {
-            background: #007bff;
-            color: white;
-            border-color: #007bff;
-        }
+    .product-name {
+        font-size: 12px;
+        font-weight: 600;
+        margin: 5px 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 
-        .product-name {
-            font-size: 12px;
-            font-weight: 600;
-            margin: 5px 0;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
+    .product-sku-barcode {
+        font-size: 10px;
+        color: #999;
+        margin: 3px 0;
+        font-family: monospace;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 
-        .product-price {
-            font-size: 14px;
-            font-weight: bold;
-            color: #28a745;
-            margin: 5px 0;
-        }
+    .product-price {
+        font-size: 14px;
+        font-weight: bold;
+        color: #28a745;
+        margin: 5px 0;
+    }
 
-        .product-stock {
-            font-size: 11px;
-            color: #6c757d;
-        }
+    .product-stock {
+        font-size: 11px;
+        color: #6c757d;
+    }
 
-        .cart-items {
-            flex: 1;
-            overflow-y: auto;
-            margin-bottom: 15px;
-        }
+    .cart-items {
+        flex: 1;
+        overflow-y: auto;
+        margin-bottom: 15px;
+    }
 
-        .cart-item {
-            display: grid;
-            grid-template-columns: auto 1fr auto auto auto;
-            gap: 10px;
-            align-items: center;
-            padding: 10px;
-            background: #f8f9fa;
-            border-radius: 4px;
-            margin-bottom: 8px;
-            font-size: 13px;
-        }
+    .cart-item {
+        display: grid;
+        grid-template-columns: auto 1fr auto auto auto;
+        gap: 10px;
+        align-items: center;
+        padding: 10px;
+        background: #f8f9fa;
+        border-radius: 4px;
+        margin-bottom: 8px;
+        font-size: 13px;
+    }
 
-        .cart-item-name {
-            font-weight: 600;
-        }
+    .cart-item-name {
+        font-weight: 600;
+    }
 
-        .cart-item-qty {
-            width: 50px;
-            padding: 4px;
-            text-align: center;
-        }
+    .cart-item-qty {
+        width: 50px;
+        padding: 4px;
+        text-align: center;
+    }
 
-        .cart-item-total {
-            font-weight: bold;
-            min-width: 80px;
-            text-align: right;
-        }
+    .cart-item-total {
+        font-weight: bold;
+        min-width: 80px;
+        text-align: right;
+    }
 
-        .remove-item {
-            color: #dc3545;
-            cursor: pointer;
-            font-weight: bold;
-        }
+    .remove-item {
+        color: #dc3545;
+        cursor: pointer;
+        font-weight: bold;
+    }
 
-        .summary-section {
-            border-top: 2px solid #ddd;
-            padding-top: 15px;
-        }
+    .summary-section {
+        border-top: 2px solid #ddd;
+        padding-top: 15px;
+    }
 
-        .summary-row {
-            display: flex;
-            justify-content: space-between;
-            margin: 8px 0;
-            font-size: 14px;
-        }
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        margin: 8px 0;
+        font-size: 14px;
+    }
 
-        .summary-row.total {
-            font-size: 18px;
-            font-weight: bold;
-            color: #28a745;
-            padding-top: 8px;
-            border-top: 1px solid #ddd;
-        }
+    .summary-row.total {
+        font-size: 18px;
+        font-weight: bold;
+        color: #28a745;
+        padding-top: 8px;
+        border-top: 1px solid #ddd;
+    }
 
-        .discount-input {
-            display: flex;
-            gap: 5px;
-            margin: 10px 0;
-        }
+    .discount-input {
+        display: flex;
+        gap: 5px;
+        margin: 10px 0;
+    }
 
-        .discount-input input {
-            flex: 1;
-        }
+    .discount-input input {
+        flex: 1;
+    }
 
-        .discount-input select {
-            width: 100px;
-        }
+    .discount-input select {
+        width: 100px;
+    }
 
-        .payment-method {
-            display: flex;
-            gap: 5px;
-            margin: 10px 0;
-        }
+    .payment-method {
+        display: flex;
+        gap: 5px;
+        margin: 10px 0;
+    }
 
-        .payment-method label {
-            flex: 1;
-            margin: 0;
-        }
+    .payment-method label {
+        flex: 1;
+        margin: 0;
+    }
 
-        .payment-method input {
-            margin-right: 3px;
-        }
+    .payment-method input {
+        margin-right: 3px;
+    }
 
-        .action-buttons {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-top: 10px;
-        }
+    .action-buttons {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-top: 10px;
+    }
 
-        .search-box {
-            display: flex;
-            gap: 5px;
-            margin-bottom: 10px;
-        }
+    .search-box {
+        display: flex;
+        gap: 5px;
+        margin-bottom: 10px;
+    }
 
-        .search-box input {
-            flex: 1;
-        }
+    .search-box input {
+        flex: 1;
+    }
 
-        .category-tabs {
-            display: flex;
-            gap: 5px;
-            margin-bottom: 10px;
-            overflow-x: auto;
-            padding-bottom: 5px;
-        }
+    .search-hints {
+        font-size: 11px;
+        color: #999;
+        margin-bottom: 10px;
+        padding: 5px;
+        background: #f0f0f0;
+        border-radius: 4px;
+    }
 
-        .category-btn {
-            padding: 6px 12px;
-            border: 1px solid #ddd;
-            background: white;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-            white-space: nowrap;
-            transition: all 0.2s;
-        }
+    /* BARCODE SCANNER SECTION */
+    .barcode-scanner-section {
+        background: #f8f9fa;
+        border: 2px solid #007bff;
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 15px;
+    }
 
-        .category-btn.active {
-            background: #007bff;
-            color: white;
-            border-color: #007bff;
-        }
-    </style>
+    .barcode-scanner-section h6 {
+        margin: 0 0 8px 0;
+        color: #007bff;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .barcode-input {
+        width: 100%;
+        padding: 10px;
+        border: 2px solid #ddd;
+        border-radius: 4px;
+        font-size: 16px;
+        font-weight: 600;
+        text-align: center;
+        transition: all 0.3s;
+    }
+
+    .barcode-input:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+        outline: none;
+    }
+
+    .barcode-message {
+        font-size: 11px;
+        padding: 5px;
+        margin-top: 5px;
+        border-radius: 3px;
+        text-align: center;
+        display: none;
+    }
+
+    .barcode-message.success {
+        background: #d4edda;
+        color: #155724;
+        display: block;
+    }
+
+    .barcode-message.error {
+        background: #f8d7da;
+        color: #721c24;
+        display: block;
+    }
+
+    .category-tabs {
+        display: flex;
+        gap: 5px;
+        margin-bottom: 10px;
+        overflow-x: auto;
+        padding-bottom: 5px;
+    }
+
+    .category-btn {
+        padding: 6px 12px;
+        border: 1px solid #ddd;
+        background: white;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+        white-space: nowrap;
+        transition: all 0.2s;
+    }
+
+    .category-btn.active {
+        background: #007bff;
+        color: white;
+        border-color: #007bff;
+    }
+
+    .search-results {
+        font-size: 12px;
+        color: #666;
+        margin-bottom: 10px;
+        padding: 5px;
+        background: #e8f4f8;
+        border-radius: 4px;
+        display: none;
+    }
+
+    .search-results.show {
+        display: block;
+    }
+</style>
 
 @section('content')
     <div class="container-fluid">
@@ -249,11 +336,33 @@
                 <div class="products-area">
                     <h5 class="fw-bold mb-2">Mahsulotlar</h5>
 
+                    {{-- BARCODE SCANNER --}}
+                    <div class="barcode-scanner-section">
+                        <h6>
+                            <i class="fas fa-barcode me-1"></i> 📱 BARCODE SCANNER
+                        </h6>
+                        <input type="text"
+                               id="barcodeInput"
+                               class="barcode-input"
+                               placeholder="Barcode o'qing..."
+                               autocomplete="off">
+                        <div id="barcodeMessage" class="barcode-message"></div>
+                    </div>
+
                     {{-- Qidirish --}}
                     <div class="search-box">
                         <input type="text" id="productSearch" class="form-control form-control-sm"
                                placeholder="Nomi, SKU yoki barcode bo'yicha qidiring...">
                     </div>
+
+                    {{-- Search Hints --}}
+                    <div class="search-hints">
+                        <i class="fas fa-lightbulb me-1"></i>
+                        Masalan: "samsung" | "SKU-001" | "1234567890"
+                    </div>
+
+                    {{-- Search Results Counter --}}
+                    <div class="search-results" id="searchResults"></div>
 
                     {{-- Kategoriya filtri --}}
                     <div class="category-tabs">
@@ -270,16 +379,28 @@
                     {{-- Mahsulot siyohati --}}
                     <div class="product-grid" id="productGrid">
                         @foreach($products as $product)
-                            <div class="product-card" data-product-id="{{ $product->id }}"
+                            <div class="product-card"
+                                 data-product-id="{{ $product->id }}"
                                  data-category="{{ $product->category_id }}"
                                  data-name="{{ $product->name }}"
+                                 data-sku="{{ $product->sku ?? '' }}"
+                                 data-barcode="{{ $product->barcode ?? '' }}"
                                  data-price="{{ $product->sale_price }}"
                                  data-stock="{{ $product->stock }}">
 
-                                <div class="product-name">{{ $product->name }}</div>
+                                <div class="product-name" title="{{ $product->name }}">{{ $product->name }}</div>
+                                @if($product->barcode)
+                                    <div class="product-sku-barcode" title="{{ $product->barcode }}">
+                                        🔢 {{ substr($product->barcode, 0, 12) }}
+                                    </div>
+                                @else
+                                    <div class="product-sku-barcode" title="{{ $product->sku }}">
+                                        📌 {{ $product->sku ?? 'N/A' }}
+                                    </div>
+                                @endif
                                 <div class="product-price">{{ number_format($product->sale_price, 0) }}</div>
                                 <div class="product-stock">
-                                    📦 {{ $product->stock }} {{ $product->unit }}
+                                    📦 {{ $product->stock }} {{ $product->unit ?? '' }}
                                 </div>
                             </div>
                         @endforeach
@@ -308,7 +429,7 @@
                         {{-- Chegirma --}}
                         <div class="discount-input">
                             <select name="discount_type" id="discountType" class="form-select form-select-sm">
-                                <option value="fixed">Soʻmda</option>
+                                <option value="fixed">So'mda</option>
                                 <option value="percent">Foizda</option>
                             </select>
                             <input type="number" name="discount_value" id="discountValue"
@@ -367,9 +488,102 @@
 
     <script>
         let cartItems = [];
+        const barcodeInput = document.getElementById('barcodeInput');
+        const productSearchInput = document.getElementById('productSearch');
+
+        // ==========================================
+        // 📱 BARCODE SCANNER LOGIC
+        // ==========================================
+        barcodeInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const barcode = this.value.trim();
+
+                if (!barcode) {
+                    showBarcodeMessage('Barcode bo\'sh!', 'error');
+                    return;
+                }
+
+                // 🔍 Barcode bo'yicha mahsulot qidirish
+                const product = findProductByBarcode(barcode);
+
+                if (product) {
+                    // ✓ Mahsulot topildi
+                    addToCart({
+                        product_id: product.productId,
+                        name: product.name,
+                        price: parseFloat(product.price),
+                        stock: parseInt(product.stock)
+                    });
+
+                    showBarcodeMessage(`✓ ${product.name} qo'shildi!`, 'success');
+
+                    // 🔄 INPUT TOZALASH VA SEARCH'NI BO'SHLIGINI TEKSHIRISH
+                    clearBarcodeInput();
+                } else {
+                    // ✗ Mahsulot topilmadi
+                    showBarcodeMessage(`❌ Barcode '${barcode}' topilmadi!`, 'error');
+                    clearBarcodeInput();
+                }
+            }
+        });
+
+        /**
+         * 🔍 Barcode bo'yicha mahsulot qidirish
+         */
+        function findProductByBarcode(barcode) {
+            const cards = document.querySelectorAll('.product-card');
+            for (let card of cards) {
+                const cardBarcode = (card.dataset.barcode || '').toLowerCase().trim();
+                const cardSku = (card.dataset.sku || '').toLowerCase().trim();
+
+                if (cardBarcode === barcode.toLowerCase() || cardSku === barcode.toLowerCase()) {
+                    return {
+                        productId: card.dataset.productId,
+                        name: card.dataset.name,
+                        price: card.dataset.price,
+                        stock: card.dataset.stock
+                    };
+                }
+            }
+            return null;
+        }
+
+        /**
+         * 🗑️ BARCODE INPUT'NI TOZALASH VA QAYTA FOCUS
+         */
+        function clearBarcodeInput() {
+            barcodeInput.value = '';
+            barcodeInput.focus();
+
+            // Agar search input bo'sh bo'lmasa, uni ham tozalash
+            if (productSearchInput.value.trim() !== '') {
+                productSearchInput.value = '';
+                filterProducts();
+            }
+        }
+
+        /**
+         * 💬 Barcode message ko'rsatish
+         */
+        function showBarcodeMessage(message, type) {
+            const messageDiv = document.getElementById('barcodeMessage');
+            messageDiv.textContent = message;
+            messageDiv.className = `barcode-message ${type}`;
+
+            // 3 soniya keyin xabarni o'chirish
+            setTimeout(() => {
+                messageDiv.className = 'barcode-message';
+                messageDiv.textContent = '';
+            }, 3000);
+        }
+
+        // ==========================================
+        // 🔍 PRODUCT SEARCH LOGIC
+        // ==========================================
 
         // Mahsulot qidirish (real-time)
-        document.getElementById('productSearch').addEventListener('input', filterProducts);
+        productSearchInput.addEventListener('input', filterProducts);
 
         // Kategoriya filtri
         document.querySelectorAll('.category-btn').forEach(btn => {
@@ -381,20 +595,62 @@
             });
         });
 
+        /**
+         * 🔍 FILTER FUNCTION - Name, SKU, Barcode
+         */
         function filterProducts() {
-            const searchValue = document.getElementById('productSearch').value.toLowerCase();
+            const searchValue = productSearchInput.value.toLowerCase().trim();
             const categoryValue = document.querySelector('.category-btn.active').dataset.category;
 
+            let visibleCount = 0;
+
             document.querySelectorAll('.product-card').forEach(card => {
-                const name = card.dataset.name.toLowerCase();
+                const name = (card.dataset.name || '').toLowerCase();
+                const sku = (card.dataset.sku || '').toLowerCase();
+                const barcode = (card.dataset.barcode || '').toLowerCase();
                 const category = card.dataset.category;
 
-                const matchSearch = name.includes(searchValue) || searchValue === '';
+                // 🔍 FILTER LOGIC: Name OR SKU OR Barcode
+                const matchSearch =
+                    name.includes(searchValue) ||
+                    sku.includes(searchValue) ||
+                    barcode.includes(searchValue) ||
+                    searchValue === '';
+
                 const matchCategory = categoryValue === 'all' || category === categoryValue;
 
-                card.style.display = matchSearch && matchCategory ? '' : 'none';
+                const shouldDisplay = matchSearch && matchCategory;
+                card.style.display = shouldDisplay ? '' : 'none';
+
+                if (shouldDisplay) visibleCount++;
             });
+
+            // Update search results counter
+            updateSearchResultsCounter(visibleCount);
         }
+
+        /**
+         * 📊 Search results counter
+         */
+        function updateSearchResultsCounter(count) {
+            const searchResults = document.getElementById('searchResults');
+            const totalProducts = document.querySelectorAll('.product-card').length;
+
+            if (productSearchInput.value.trim() === '') {
+                searchResults.classList.remove('show');
+            } else {
+                searchResults.classList.add('show');
+                if (count === 0) {
+                    searchResults.innerHTML = '❌ Mahsulot topilmadi';
+                } else {
+                    searchResults.innerHTML = `✓ ${count}/${totalProducts} ta mahsulot topildi`;
+                }
+            }
+        }
+
+        // ==========================================
+        // 🛒 CART MANAGEMENT
+        // ==========================================
 
         // Mahsulot tanlash
         document.querySelectorAll('.product-card').forEach(card => {
@@ -531,6 +787,13 @@
                 e.preventDefault();
                 alert('Iltimos, mahsulot tanlang!');
             }
+        });
+
+        // ==========================================
+        // 🚀 INIT - Barcode input'ni auto-focus
+        // ==========================================
+        window.addEventListener('load', function() {
+            barcodeInput.focus();
         });
     </script>
 @endsection

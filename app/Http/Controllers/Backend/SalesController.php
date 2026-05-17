@@ -239,6 +239,7 @@ class SalesController extends Controller implements HasMiddleware
 
     /**
      * 🔍 API - Mahsulot qidirish (AJAX)
+     * GET /admin/sales/search-products?q=samsung
      */
     public function searchProducts(Request $request)
     {
@@ -256,9 +257,91 @@ class SalesController extends Controller implements HasMiddleware
             })
             ->where('stock', '>', 0)
             ->limit(10)
-            ->get(['id', 'name', 'sku', 'sale_price', 'stock']);
+            ->get(['id', 'name', 'sku', 'barcode', 'sale_price', 'stock']);
 
         return response()->json($products);
+    }
+
+    /**
+     * 📱 BARCODE SCANNER - Barcode o'qish
+     * POST /admin/sales/scan-barcode
+     *
+     * Request:
+     * {
+     *     "barcode": "1234567890"
+     * }
+     *
+     * Response (Success):
+     * {
+     *     "success": true,
+     *     "message": "Mahsulot topildi!",
+     *     "product": {
+     *         "id": 1,
+     *         "name": "Samsung A12",
+     *         "sku": "SKU-001",
+     *         "barcode": "1234567890",
+     *         "sale_price": 500000,
+     *         "stock": 50
+     *     }
+     * }
+     *
+     * Response (Not Found):
+     * {
+     *     "success": false,
+     *     "message": "Barcode '1234567890' topilmadi!",
+     *     "barcode": "1234567890"
+     * }
+     */
+    public function scanBarcode(Request $request)
+    {
+        $barcode = trim($request->input('barcode', ''));
+
+        if (!$barcode) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Barcode bo\'sh!'
+            ], 400);
+        }
+
+        // Barcode yoki SKU bo'yicha mahsulot qidirish
+        // Birinchisi barcode, keyin SKU bo'yicha
+        $product = Product::where(function ($query) use ($barcode) {
+            $query->where('barcode', $barcode)
+                ->orWhere('sku', $barcode);
+        })
+            ->where('status', 'active')
+            ->first();
+
+        if (!$product) {
+            return response()->json([
+                'success' => false,
+                'message' => "Barcode '$barcode' topilmadi!",
+                'barcode' => $barcode
+            ], 404);
+        }
+
+        // Stock tekshirish
+        if ($product->stock <= 0) {
+            return response()->json([
+                'success' => false,
+                'message' => "{$product->name} - Yo'qolgan mahsulot!",
+                'product' => $product
+            ], 400);
+        }
+
+        // Muvaffaqiyatli - mahsulot ma'lumotlari qaytarish
+        return response()->json([
+            'success' => true,
+            'message' => 'Mahsulot topildi!',
+            'product' => [
+                'id' => $product->id,
+                'name' => $product->name,
+                'sku' => $product->sku,
+                'barcode' => $product->barcode,
+                'sale_price' => $product->sale_price,
+                'stock' => $product->stock,
+            ]
+        ]);
     }
 
     /**
