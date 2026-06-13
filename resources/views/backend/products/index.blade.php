@@ -70,7 +70,7 @@
                             </td>
                             <td>
                                 <small class="d-block text-muted">SKU: <code>{{ $product->sku }}</code></small>
-                                <small class="d-block text-muted">Barcode: <code>{{ $product->barcode }}</code></small>
+                                <small class="d-block text-muted">Barcode: <code>{{ $product->barcode ?? 'N/A' }}</code></small>
                             </td>
                             <td>{{ $product->category->name }}</td>
                             <td>
@@ -80,19 +80,19 @@
                             <td>
                                 @if($product->isLowStock())
                                     <span class="badge bg-danger">
-                                    <i class="fas fa-exclamation-triangle me-1"></i>
-                                    {{ $product->stock }} {{ $product->unit }}
-                                </span>
+                                        <i class="fas fa-exclamation-triangle me-1"></i>
+                                        {{ $product->stock }} {{ $product->unit }}
+                                    </span>
                                 @else
                                     <span class="badge bg-success">
-                                    {{ $product->stock }} {{ $product->unit }}
-                                </span>
+                                        {{ $product->stock }} {{ $product->unit }}
+                                    </span>
                                 @endif
                             </td>
                             <td>
-                            <span class="badge bg-{{ $product->status === 'active' ? 'success' : 'secondary' }}">
-                                {{ $product->status === 'active' ? 'Faol' : 'Nofaol' }}
-                            </span>
+                                <span class="badge bg-{{ $product->status === 'active' ? 'success' : 'secondary' }}">
+                                    {{ $product->status === 'active' ? 'Faol' : 'Nofaol' }}
+                                </span>
                             </td>
                             @canany(['products.edit', 'products.delete'])
                                 <td class="text-end pe-3">
@@ -130,12 +130,67 @@
                     </tbody>
                 </table>
             </div>
+
+            {{-- ✅ FIXED PAGINATION --}}
             @if($products->hasPages())
-                <div class="card-footer bg-white d-flex justify-content-between align-items-center">
-                    <small class="text-muted">
-                        {{ $products->firstItem() }}–{{ $products->lastItem() }} / {{ $products->total() }}
-                    </small>
-                    {{ $products->links() }}
+                <div class="card-footer bg-white">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                        {{-- Info --}}
+                        <small class="text-muted">
+                            📊 {{ $products->firstItem() }}–{{ $products->lastItem() }} / {{ $products->total() }} ta mahsulot
+                        </small>
+
+                        {{-- Pagination --}}
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination pagination-sm mb-0">
+                                {{-- Previous Page Link --}}
+                                @if ($products->onFirstPage())
+                                    <li class="page-item disabled">
+                                        <span class="page-link">
+                                            <i class="fas fa-chevron-left me-1"></i> Oldingi
+                                        </span>
+                                    </li>
+                                @else
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ $products->previousPageUrl() }}" rel="prev">
+                                            <i class="fas fa-chevron-left me-1"></i> Oldingi
+                                        </a>
+                                    </li>
+                                @endif
+
+                                {{-- Pagination Page Numbers --}}
+                                @foreach ($products->getUrlRange(1, $products->lastPage()) as $page => $url)
+                                    @if ($page == $products->currentPage())
+                                        <li class="page-item active" aria-current="page">
+                                            <span class="page-link">
+                                                {{ $page }}
+                                                <span class="visually-hidden">(current)</span>
+                                            </span>
+                                        </li>
+                                    @else
+                                        <li class="page-item">
+                                            <a class="page-link" href="{{ $url }}">{{ $page }}</a>
+                                        </li>
+                                    @endif
+                                @endforeach
+
+                                {{-- Next Page Link --}}
+                                @if ($products->hasMorePages())
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ $products->nextPageUrl() }}" rel="next">
+                                            Keyingi <i class="fas fa-chevron-right ms-1"></i>
+                                        </a>
+                                    </li>
+                                @else
+                                    <li class="page-item disabled">
+                                        <span class="page-link">
+                                            Keyingi <i class="fas fa-chevron-right ms-1"></i>
+                                        </span>
+                                    </li>
+                                @endif
+                            </ul>
+                        </nav>
+                    </div>
                 </div>
             @endif
         </div>
